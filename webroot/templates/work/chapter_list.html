@@ -1,0 +1,207 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block hcontent %}
+<section class="chapter">
+	<section class="p w900 box-align-center">
+		<section class="p layer-relative"><img src="{{ work.thumbnail_url }}" alt="" class="p w400 h200 layer">
+			<article class="p font layer-relative">
+			<h2>{{ work.title }}<span style="padding-top: 5px;" class="p show font pt10">{{ work.author.nickname }}</span></h2>
+				<p>{{ work.description }}</p>
+				<div class="p layer">
+				{% if user.is_authenticated %}
+				<button class="ladda-button ladda-small" data-color="blue" data-style="zoom-in" data-size="xs" onclick="location.href='{% url 'author:info' work.author.id %}'"><span class="ladda-label">작가정보</span></button>
+				<button id="add_to_favorites" class="ladda-button ladda-small" data-id="{{ work.id }}" data-color="blue" data-style="zoom-in" data-size="xs"><span class="ladda-label"><img src="{% static 'img/icon.favorite.png' %}" width="10" height="10" alt=""> 즐겨찾기 추가</span></button>
+				{% endif %}
+
+				{% if work.author == user %}
+				&nbsp;&nbsp;
+				<button onclick="location.href = '{% url 'author:editwork' work.id %}'" class="ladda-button ladda-small" data-id="{{ work.id }}" data-color="blue" data-style="zoom-in" data-size="xs"><span class="ladda-label">정보 수정</span></button>
+				<button onclick="location.href = '{% url 'author:addchapter' work.id %}'" class="ladda-button ladda-small" data-id="{{ work.id }}" data-color="blue" data-style="zoom-in" data-size="xs"><span class="ladda-label">챕터 추가</span></button>
+				{% endif %}
+				</div>
+			</article>
+		</section>
+		<nav class="p font text-align-center">
+			<ul class="p no-list no-margin edge-bottom-silver {% if work.author == user %}my-work{% endif %}">
+			{% for chapter in chapters %}
+				{% if chapter.public or chapter.work.author == user %}
+					<li class="p edge-top-silver">
+					<a href="{% url 'chapter_view' chapter.id %}" class="p no-line layer-relative show h100p font pt12"><img src="{{ chapter.thumbnail_url }}" alt="" class="p layer"><b class="p left color-midnight-blue">{{ chapter.title }}<br><span class="p show font pt8 color-asbestos">{{ chapter.created|date:"Y-m-d" }}</span></b><span class="p right font pt8 color-wet-asphalt weight-bold">{{ chapter.avg_rating.avg_rating }}<span class="p p font pt12 color-emerald">&nbsp;{{ chapter.avg_rating.rating_str }}</span></span></a>
+					{% if chapter.work.author == user %}
+					<div>
+					<button class="update-chapter-thumbnail ladda-button ladda-small" data-id="{{ chapter.id }}" data-color="blue" data-style="zoom-in" data-size="xs">
+						<div>
+							<input type="file" accept="image/*">
+							<input type="button" class="ladda-label" value="이미지 변경">
+						</div>
+					</button>
+					{% if chapter.reg_no %}
+					<button class="update-chapter ladda-button ladda-small" data-id="{{ chapter.id }}" data-color="blue" data-style="zoom-in" data-size="xs"><span class="ladda-label">갱신</span></button>
+					{% endif %}
+					<button class="update-chapter-public ladda-button ladda-small" data-id="{{ chapter.id }}" data-color="blue" data-style="zoom-in" data-size="xs"><span class="ladda-label">{% if chapter.public %}비{% endif %}공개</span></button>
+					<button class="update-chapter-comment ladda-button ladda-small" data-id="{{ chapter.id }}" data-comment="{{ chapter.description }}" data-color="blue" data-style="zoom-in" data-size="xs"><span class="ladda-label">작가 한마디 수정</span></button>
+					</div>
+					{% endif %}
+					</li>
+				{% endif %}
+			{% endfor %}
+			</ul>
+			<!--
+			<ul class="p no-list no-margin m-top15 box-align-center">
+				<li class="button p left"><a href="#"><img src="{% static 'img/icon.navigator.prev.png' %}" alt=""></a></li>
+				<li class="p left"><a href="#" class="p no-line font color-midnight-blue pt12">101</a></li>
+				<li class="p left"><a href="#" class="p no-line font color-midnight-blue pt12">102</a></li>
+				<li class="p left"><a href="#" class="p no-line font color-midnight-blue pt12">103</a></li>
+				<li class="p left"><a href="#" class="p no-line font color-midnight-blue pt12">104</a></li>
+				<li class="p left"><a href="#" class="p no-line font color-midnight-blue pt12"><span class="p font weight-bold pt12">105</span></a></li>
+				<li class="p left"><a href="#" class="p no-line font color-midnight-blue pt12">106</a></li>
+				<li class="p left"><a href="#" class="p no-line font color-midnight-blue pt12">107</a></li>
+				<li class="p left"><a href="#" class="p no-line font color-midnight-blue pt12">108</a></li>
+				<li class="p left"><a href="#" class="p no-line font color-midnight-blue pt12">109</a></li>
+				<li class="button p left"><a href="#"><img src="{% static 'img/icon.navigator.next.png' %}" alt=""></a></li>
+				<li class="p clear"></li>
+			</ul>
+			-->
+		</nav>
+	</section>
+	<script>declare(_not_index)</script>
+	<section class="p clear"></section>
+</section>
+{% endblock %}
+
+{% block script %}
+<script>
+$(function() {
+	var csrfToken = $("{% csrf_token %}").val();
+	$('#add_to_favorites').click(function() {
+		var l = $(this).ladda();
+		l.ladda('start');
+
+		$.ajax({
+			type: 'POST',
+			url: '{% url 'member:add_to_favorites' %}',
+			data: {
+				type: 'work',
+				id: $(this).data('id'),
+				csrfmiddlewaretoken: csrfToken,
+			},
+			success: function(data) {
+				alert(data.success ? '즐겨찾기에 등록되었습니다.' : data.message);
+				l.ladda('stop');
+			}
+		});
+	});
+
+	{% if work.author == user %}
+	$('.update-chapter').click(function() {
+		alert(1);
+		var l = $(this).ladda();
+		l.ladda('start');
+
+		$.ajax({
+			type: 'POST',
+			url: '{% url 'update_chapter' %}',
+			data: {
+				type: 'update',
+				id: $(this).data('id'),
+				csrfmiddlewaretoken: csrfToken,
+			},
+			success: function(data) {
+				alert(data.success ? '갱신 요청이 완료되었습니다.' : data.message);
+				l.ladda('stop');
+			}
+		});
+	});
+
+	$('.update-chapter-public').click(function() {
+		var l = $(this).ladda();
+		l.ladda('start');
+
+		$.ajax({
+			type: 'POST',
+			url: '{% url 'update_chapter' %}',
+			data: {
+				type: 'public',
+				id: $(this).data('id'),
+				csrfmiddlewaretoken: csrfToken,
+			},
+			context: this,
+			success: function(data) {
+				alert(data.message);
+				l.ladda('stop');
+
+				if(data.public) {
+					$(this).find('span').text('비공개');
+				} else {
+					$(this).find('span').text('공개');
+				}
+			}
+		});
+	});
+
+	$('.update-chapter-thumbnail input:first-child').change(function() {
+		var l = $(this).parent().parent().ladda();
+		var id = $(this).parent().parent().data('id');
+		$(this).attr('disabled', 'disabled');
+		l.ladda('start');
+
+		var file = this.files[0];
+		var data = new FormData();
+		if(!file) { return; }
+		data.append('csrfmiddlewaretoken', csrfToken);
+		data.append('type', 'thumbnail');
+		data.append('id', id);
+		data.append('image', file);
+
+		$.ajax({
+			url: '{% url 'update_chapter' %}',
+			data: data,
+			cache: false,
+			contentType: false,
+			processData: false,
+			type: 'POST',
+			success: function(data) {
+				if(data.success) {
+					alert('미리보기 파일이 변경되었습니다.');
+					location.reload();
+				} else {
+					alert(data.message);
+				}
+			}
+		});
+	});
+
+	$('.update-chapter-comment').click(function() {
+		var original = $(this).data('comment');
+		var input = prompt('변경할 작가 한마디를 입력해주세요.', original);
+		if(input != original) {
+			var l = $(this).ladda();
+			l.ladda('start');
+
+			$.ajax({
+				url: '{% url 'update_chapter' %}',
+				data: {
+					type: 'comment',
+					id: $(this).data('id'),
+					comment: input,
+					csrfmiddlewaretoken: csrfToken,
+				},
+				type: 'POST',
+				success: function(data) {
+					if(data.success) {
+						alert('작가 한마디가 수정되었습니다.');
+						$(this).data('comment', input);
+					} else {
+						alert(data.message);
+					}
+
+					l.ladda('stop');
+				}
+			});
+		}
+	});
+	{% endif %}
+});
+</script>
+{% endblock %}

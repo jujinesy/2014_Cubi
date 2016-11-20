@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block content %}
+<script>
+	alert("{{ user.nickname }}님, 회원가입에 성공했습니다.");
+	location.replace("/");
+</script>
+{% endblock %}

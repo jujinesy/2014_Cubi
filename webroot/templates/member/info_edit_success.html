@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block content %}
+<script>
+	alert("회원정보가 수정되었습니다.");
+	location.replace(document.referrer);
+</script>
+{% endblock %}

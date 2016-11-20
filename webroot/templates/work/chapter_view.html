@@ -1,0 +1,223 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% load aggerate_height %}
+
+{% block content %}
+<canvas id="view" width="{{ images.first.image.width }}" height="{{ images|aggerate_height }}"></canvas>
+
+<div>
+평균 별점: {{ avg_rating }}<br>
+{% if not user_rated and user.is_authenticated %}
+<form method="post" action="{% url "add_chapter_rating" chapter.id %}">
+	{% csrf_token %}
+	평점 남기기:
+	<select name="rating">
+		<option value="1">0.5</option>
+		<option value="2">1.0</option>
+		<option value="3">1.5</option>
+		<option value="4">2.0</option>
+		<option value="5">2.5</option>
+		<option value="6">3.0</option>
+		<option value="7">3.5</option>
+		<option value="8">4.0</option>
+		<option value="9">4.5</option>
+		<option value="10">5.0</option>
+	</select>
+	<input type="submit">
+</form>
+{% endif %}
+</div>
+
+<div>
+{% for comment in comments %}
+	<div>
+		<strong>{{ comment.author }}</strong>
+		<p>
+			{{ comment.content }}
+		</p>
+		<span>
+			{{ comment.created }}
+		</span>
+	</div>
+{% endfor %}
+<form action="{% url "add_chapter_comment" chapter.id %}" method="post">
+	{% csrf_token %}
+	댓글 남기기:
+	<input type="text" name="comment">
+	<input type="submit">
+</form>
+</div>
+{% endblock %}
+
+{% block chapter_header %}
+<h4 class="p left h45 font pt18 color-white">
+	<a href="./" class="p no-line color-white">tinicube</a>
+	<span class="p hide color-wet-asphalt"><b>{{ work.title }}</b><span>&nbsp;:&nbsp;{{ chapter.title }}</span></span>
+	&nbsp;
+	<button class="update-chapter ladda-button ladda-small" onclick="prompt('Ctrl + C 를 눌러서 복사하세요.', 'http://www.tinicube.com{% url 'chapter_view' chapter.id %}')" data-color="blue" data-style="zoom-in" data-size="xs" style="zoom: 0.8"><span class="ladda-label">링크 복사</span></button>
+</h4>
+{% endblock %}
+{% block hcontent %}
+<section class="view">
+	<section class="p w1000 box-align-center text-align-center">
+	<canvas id="view" width="{{ images.first.image.width }}" height="{{ images|aggerate_height }}"></canvas>
+		<!--<nav>
+			<ul class="p no-list">
+				<li class="button p left"><a href="#"><img src="{% static 'img/icon.navigator.view.prev.png' %}" alt=""></a></li>
+				<li class="p left"><a href="#" class="p no-line"><img src="rsrc/img/_.sample04.png" alt=""><span class="p font pt9 weight-thin color-asbestos">705</span></a></li>
+				<li class="p left"><a href="#" class="p no-line"><img src="rsrc/img/_.sample05.png" alt=""><span class="p font pt9 weight-thin color-asbestos">706</span></a></li>
+				<li class="p left"><a href="#" class="p no-line"><img src="rsrc/img/_.sample06.png" alt=""><span class="p font pt9 weight-thin color-asbestos">707</span></a></li>
+				<li class="p left"><a href="#" class="p no-line"><img src="rsrc/img/_.sample07.png" alt=""><span class="p font pt9 weight-thin color-asbestos">708</span></a></li>
+				<li class="p left"><a href="#" class="p no-line"><img src="rsrc/img/_.sample08.png" alt=""><span class="p font pt9 weight-thin color-asbestos">709</span></a></li>
+				<li class="button p left"><a href="#"><img src="{% static 'img/icon.navigator.view.next.png' %}" alt=""></a></li>
+			</ul>
+			<section class="p clear"></section>
+		</nav>-->
+	</section>
+	<section class="p edge-top-silver m-top15 clouds" id="bottom">
+		<section class="p w900 box-align-center p-top15">
+			<section class="p left h100 layer-relative">
+				<h4 class="p font weight-regular pt12">작가의 말<span class="p font weight-thin pt12 color-asbestos">&nbsp;({{ work.author.nickname }})</span></h4>
+				<p>{{ chapter.description }}</p>
+				<section class="p layer">
+					<section class="p font left peter-river color-white pt9 layer-relative">
+						<form method="post" id="rating_form" action="{% url "add_chapter_rating" chapter.id %}">
+							{% csrf_token %}
+						</form>
+						{% if not user_rated and user.is_authenticated %}
+						<section id="rating" class="p left">●●◐○○<b>5</b></section>
+						<nav class="p layer">
+							<ul class="p no-list no-margin">
+								<li><a><span>●●●●●</span><b>10</b></a></li>
+								<li><a><span>●●●●◐</span><b>9</b></a></li>
+								<li><a><span>●●●●○</span><b>8</b></a></li>
+								<li><a><span>●●●◐○</span><b>7</b></a></li>
+								<li><a><span>●●●○○</span><b>6</b></a></li>
+								<li><a><span>●●◐○○</span><b>5</b></a></li>
+								<li><a><span>●●○○○</span><b>4</b></a></li>
+								<li><a><span>●◐○○○</span><b>3</b></a></li>
+								<li><a><span>●○○○○</span><b>2</b></a></li>
+								<li><a><span>◐○○○○</span><b>1</b></a></li>
+							</ul>
+						</nav>
+						<a href="javascript:$('#rating_form').submit()" class="p font pt9 no-line color-white right">주기</a>
+						{% else %}
+						<section id="rating" class="p left">{{ rating_str }}<b>{{ avg_rating }}</b></section>
+						<a class="p font pt9 no-line color-white right">별점</a>
+						{% endif %}
+					</section><!--<a href="javascript:function(){add_to_favorite()}()" class="p right peter-river font pt9 text-align-center color-white no-line">즐겨찾기 추가</a>-->
+				</section>
+			</section>
+			<section class="p right w300 h100 emerald"><a href="javascript:send('twitter')" class="p left"><img src="{% static 'img/icon.share.twitter.png' %}" alt=""></a><a href="http://www.facebook.com/sharer/sharer.php?u=#url" target="_blank" class="p left nephritis"><img src="{% static 'img/icon.share.facebook.png' %}" alt=""></a><a href="#" class="p left"><img src="{% static 'img/icon.share.kakao.png' %}" alt=""></a></section>
+			<section class="p clear"></section>
+			<section class="comment p m-top15 edge-top-silver p-top15">
+				{% if user.is_authenticated %}
+				<h4 class="p font pt12">댓글 달기</h4>
+				<form action="{% url "add_chapter_comment" chapter.id %}" method="post">{% csrf_token %}
+					<textarea placeholder="욕설 및 비방 등 규정에 위반되는 댓글은 삭제될 수 있습니다." class="p left font color-midnight-blue" name="comment"></textarea>
+					<button type="submit" class="p right font color-white">작성</button>
+				</form>
+				{% else %}
+				<h4 class="p font pt12">댓글 목록</h4>
+				{% endif %}
+				<section class="p clear">
+					{% for comment in comments %}
+						<article class="p m-top15 p-top15">
+							<h5 class="p font weight-bold pt10">{{ comment.author }}&nbsp;<span>via&nbsp;<span>Tinicube&nbsp;</span></span><span>when&nbsp;<span>{{ comment.created }}</span></span></h5>
+							<p class="p font">{{ comment.content }}</p>
+						</article>
+					{% endfor %}
+				</section>
+				<p class="p clear">&nbsp;</p>
+				<!--<ul class="p no-list no-margin m-top15 box-align-center">
+					<li class="button p left"><a href="#"><img src="rsrc/img/icon.navigator.prev.png" alt=""></a></li>
+					<li class="p left"><a href="#" class="p no-line font color-midnight-blue pt12">101</a></li>
+					<li class="p left"><a href="#" class="p no-line font color-midnight-blue pt12">102</a></li>
+					<li class="p left"><a href="#" class="p no-line font color-midnight-blue pt12">103</a></li>
+					<li class="p left"><a href="#" class="p no-line font color-midnight-blue pt12">104</a></li>
+					<li class="p left"><a href="#" class="p no-line font color-midnight-blue pt12"><span class="p font weight-bold pt12">105</span></a></li>
+					<li class="p left"><a href="#" class="p no-line font color-midnight-blue pt12">106</a></li>
+					<li class="p left"><a href="#" class="p no-line font color-midnight-blue pt12">107</a></li>
+					<li class="p left"><a href="#" class="p no-line font color-midnight-blue pt12">108</a></li>
+					<li class="p left"><a href="#" class="p no-line font color-midnight-blue pt12">109</a></li>
+					<li class="button p left"><a href="#"><img src="rsrc/img/icon.navigator.next.png" alt=""></a></li>
+					<li class="p clear"></li>
+				</ul>-->
+			</section>
+		</section>
+	</section>
+	<script>declare(_chapter_view)</script>
+	<section class="p clear"></section>
+</section>
+{% endblock %}
+
+{% block script %}
+<script src="{% static 'js/excanvas.min.js' %}"></script>
+<script>
+(function($) {
+	var images = [
+	{% for image in images %}
+	{
+		url: '{{ media_url }}{{ image.image }}',
+		width: {{ image.image.width }},
+		height: {{ image.image.height }},
+		offset: {{ images|calc_offset:forloop.counter }},
+		loaded: false
+	},
+	{% endfor %}];
+
+	var canvas = document.getElementById('view');
+	if (typeof G_vmlCanvasManager !== "undefined") {
+		G_vmlCanvasManager.init_(document);
+		G_vmlCanvasManager.initElement(canvas);
+	}
+	var ctx = canvas.getContext('2d');
+
+	var drawImage = function() {
+		if(this.loaded) return;
+		this.loaded = true;
+		var image = new Image();
+		image.src = this.url;
+		image.width = this.width;
+		image.height = this.height;
+		image.setAttribute('data-offset', this.offset);
+
+		image.onload = function() {
+			ctx.drawImage(this, 0, this.getAttribute('data-offset'), this.width, this.height);
+		}
+	};
+
+	var winHeight = $(window).height();
+	$(window).scroll(function() {
+		var scrollTop = $(document).scrollTop();
+		{% for image in images %}
+		if(scrollTop + winHeight > {{ images|calc_offset:forloop.counter }}) {
+			drawImage.call(images[{{ forloop.counter|add:"-1" }}]);
+		}
+		{% endfor %}
+	});
+
+	if(images[0]) { drawImage.call(images[0]); }
+
+	var rating = $('#rating');
+	$('#rating_form').submit(function() {
+		var r = parseInt(parseFloat(rating.find('b').text()));
+		var input = $('<input type="hidden" name="rating">').val(r);
+		$(this).append(input);
+	});
+
+	window.send = function(t) {
+		if(t == 'twitter') {
+			var twtTitle = document.title;
+			var twtUrl = location.href;
+			var maxLength = 140 - (twtUrl.length + 1);
+			if (twtTitle.length > maxLength) {
+				twtTitle = twtTitle.substr(0, (maxLength - 3))+'...';
+			}
+			var twtLink = 'http://twitter.com/home?status=' + encodeURIComponent(twtTitle + ' ' + twtUrl);
+			window.open(twtLink, '_blank', 'width=400, height=280');
+		}
+	}
+})(jQuery);
+</script>
+{% endblock %}

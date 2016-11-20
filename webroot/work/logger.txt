@@ -1,0 +1,7 @@
+  Current Image(FileName:1_47864_00_01.jpg) Instance saved
+ Crop List[%s] Process
+  Current Image(FileName:1_47864_00_02.jpg) Instance create
+  Current Image(FileName:1_47864_00_02.jpg) Instance saved
+ Crop List[%s] Process
+  Current Image(FileName:1_47864_00_03.jpg) Instance create
+  Current Image(FileName:1_47864_00_03.jpg) Instance saved

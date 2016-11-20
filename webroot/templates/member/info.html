@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block content %}
+
+<div>정보 수정</div>
+<form id="signup-form" method="POST" enctype="multipart/form-data">{% csrf_token %}
+{{ form }}
+<div id="signup-btn-submit" class="form-group">
+	<div>
+		<button type="submit" class="btn btn-default">정보 수정</button>
+	</div>
+</div>
+
+<a href="{% url 'password_change' %}">비밀번호 변경하기</a>
+{% if user.fb_connected %}
+<a href="{% url 'member:disconnect_facebook' %}">Disconnect from facebook</a>
+{% else %}
+<a href="{% url 'member:connect_facebook' %}">Connect to facebook</a>
+{% endif %}
+</form>
+{% endblock %}
+
+{% block hcontent %}
+<section class="my-info">
+	<h1 class="p layer w300 h100 font weight-thin pt48 spacing-small">My !nfo</h1>
+	<section class="p layer w300 peter-river edge-radius-huge p15">
+		<form id="signup-form" class="p" method="post">{% csrf_token %}
+			<input type="text" id="id_email" name="email" value="{{ form.email.value }}" placeholder="ID or Email address" readonly="readonly" class="p white">
+			<input type="text" id="id_nickname" name="nickname" value="{{ form.nickname.value }}" placeholder="Nickname" class="p white">
+			<input id="id_password" name="password" type="password" placeholder="Password" class="p white">
+			<input id="id_password_confirm" type="password" placeholder="Re-enter password" class="p white">
+			<input type="submit" value="수정 완료" class="p font pt10 color-white">
+			<div class="p font color-white text-align-center"><a href="javascript:delete_account()" class="p no-line">회원 탈퇴</a></div>
+		</form>
+	</section>
+	<script>declare(_not_index)</script>
+	<section class="p clear"></section>
+</section>
+{% endblock %}
+
+{% block script %}
+<script>
+$(function() {
+	var csrfToken = $("{% csrf_token %}").val();
+	$('#signup-form').submit(function() {
+		var p = $('#id_password').val(),
+			p_confirm = $('#id_password_confirm').val();
+
+		if(p != p_confirm) {
+			alert('비밀번호와 비밀번호 확인이 일치하지 않습니다.');
+			return false;
+		}
+	});
+
+	window.delete_account = function() {
+		if(confirm('정말로 탈퇴하시겠습니까?\r\n주의: 삭제된 개인정보는 복구할 수 없습니다.')) {
+			var rand = parseInt(Math.random() * 999999);
+			if(prompt('다음 문자를 똑같이 입력하세요: ' + rand, '') == rand) {
+				$.ajax({
+					type: 'POST',
+					url: '{% url 'member:delete_account' %}',
+					data: {
+						csrfmiddlewaretoken: csrfToken,
+					},
+					success: function(data) {
+						alert(data.message);
+						if(data.success) {
+							location.replace('/');
+						}
+					}
+				});
+			}
+		}
+	}
+});
+</script>
+{% endblock %}

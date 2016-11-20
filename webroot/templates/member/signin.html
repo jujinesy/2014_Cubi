@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block hcontent %}
+<section class="login">
+      <h1 class="p layer w300 h100 font weight-thin pt48 spacing-small">Log!n{% if error %}<span>failure</span>{% endif %}</h1>
+      <section class="p layer w300 h200 peter-river edge-radius-huge p15">
+        <form id="signup-form" method="post" enctype="multipart/form-data" class="p">{% csrf_token %}
+          {% if error %}
+          <span class="p font color-white">로그인에 실패했습니다. 다시 시도해주세요.</span>
+          {% endif %}
+          <input id="id_email" name="email" type="text" placeholder="ID or Email address" class="p white">
+          <input id="id_password" name="password" type="password" placeholder="Password" class="p white">
+          <input type="submit" value="로그인" class="p font pt10 color-white">
+          <!-- <div class="p font color-white text-align-center"><a href="#" class="p no-line">아이디</a><span>&nbsp;/&nbsp;</span><a href="#" class="p no-line">비밀번호 찾기</a></div> -->
+        </form>
+      </section>
+      <script>declare(_not_index)</script>
+      <section class="p clear"></section>
+    </section>
+{% endblock %}

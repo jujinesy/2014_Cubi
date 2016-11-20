@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block content %}
+<script>
+	alert("{{ reason }}");
+	history.go(-1);
+</script>
+{% endblock %}

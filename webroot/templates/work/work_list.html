@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% load divisible %}
+
+{% block hcontent %}
+<section class="artworks">
+	<section class="p w900 h345 box-align-center m-top15">
+		<section class="p w900 h345 layer-relative">
+			<section class="p w900 h345 layer">
+				{% for work in works %}
+					{% if work.image_cover_large %}
+					<section class="p alizarin w900 h345 layer"><img src="{{ work.image_cover_large.url }}"></section>
+					{% endif %}
+				{% endfor %}
+			</section>
+		</section>
+	</section>
+
+	{% for work in works %}
+		{% if forloop.counter|divisible:3 == 1 %}
+			<section class="p w900 box-align-center m-top30 p-top15 edge-top-silver">
+		{% endif %}
+		<section class="p w290 {% if forloop.counter|divisible:3 == 1 or forloop.counter|divisible:3 == 2 %}left{% endif %}{% if forloop.counter|divisible:3 == 2 %} m-horizon15{% endif %}{% if forloop.counter|divisible:3 == 0 %}right{% endif %}">
+			<h3 class="p m-bottom15 font pt12 weight-semibold h20">
+				<a href="{% url 'chapter_list' work.id %}" class="p no-line color-black left line-h20">{{ work.title }}</a>
+				<a href="{% url 'chapter_list' work.id %}" class="p no-line color-asbestos font pt10 right line-h20">{{ work.author.nickname }}</a></h3>
+			<a href="{% url 'chapter_list' work.id %}"><img style="width: 100%;" src="{{ work.thumbnail_url }}" alt="{{ work.title }}"></a>
+			<p class="p p-top15 font">{{ work.description }}</p>
+		</section>
+		{% if forloop.counter|divisibleby:3 or forloop.last %}
+			<section class="p clear"></section>
+			</section>
+		{% endif %}
+	{% endfor %}
+	<script>declare(_not_index)</script>
+	<section class="p clear"></section>
+</section>
+{% endblock %}
